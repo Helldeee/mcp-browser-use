@@ -20,6 +20,7 @@ from browser_use.agent.message_manager.service import MessageManager
 from browser_use.agent.prompts import AgentMessagePrompt, SystemPrompt
 from browser_use.browser.browser import Browser, BrowserConfig
 from browser_use.browser.context import BrowserContext
+from browser_use.browser.context import BrowserContextConfig
 from mcp.server.fastmcp import FastMCP
 
 from .utils import check_playwright_installation
@@ -32,7 +33,10 @@ message_manager: Optional[MessageManager] = None
 
 
 @mcp.tool()
-async def initialize_browser(headless: bool = False, task: str = "") -> str:
+async def initialize_browser(
+    headless: bool = False,
+    save_downloads_path: str = "",
+    task: str = "") -> str:
     """Initialize a new browser instance.
     Args:
         headless: Whether to run browser in headless mode
@@ -45,7 +49,12 @@ async def initialize_browser(headless: bool = False, task: str = "") -> str:
     if browser:
         await close_browser()
 
-    config = BrowserConfig(headless=headless)
+    config = BrowserConfig(
+        headless=headless,
+        new_context_config=BrowserContextConfig(
+            save_downloads_path=save_downloads_path,
+        )
+    )
     browser = Browser(config=config)
     browser_context = BrowserContext(browser=browser)
 
